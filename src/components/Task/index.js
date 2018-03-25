@@ -58,6 +58,26 @@ export default class Task extends Component {
         deleteTask(id);
     };
 
+
+    _handleSubmit(event) {
+        event.preventDefault();
+    }
+
+    _handleMessageChange = ({ target: { value }}) => {
+        this.setState({
+            message: value,
+        });
+    };
+
+    _hadleKeyPress = (event) => {
+        if (event.key === 'Esc') {
+
+        }
+    };
+
+
+
+
     render () {
         const { message, favorite, completed } = this.props;
         const { color } = this.state;
@@ -72,8 +92,15 @@ export default class Task extends Component {
                         />
                     </span>
 
-                        {/*<input value = { message } />*/}
-                    <span>{message}</span>
+
+                    <input
+                    name = 'name'
+                    type = 'text'
+                    value = { message }
+                    onChange = { this._handleSubmit }
+                     />
+
+                    {/*<span>{message}</span>*/}
 
                     <div>
                         <span>
