@@ -58,39 +58,19 @@ export default class Scheduler extends Component {
             created:   moment().format('MMMM D h:mm:ss a'),
         };
 
-        this.setState(({ tasks }) => ({
-            tasks: [newTask, ...tasks],
-        }));
-
-        // console.log(this.state.tasks); //dev
-
-
-        // this._sortTaskByPrior(newTask);
-    };
-
-    _sortTaskByPrior = (taskMove) => {
         const { tasks: taskData } = this.state;
+        const favoriteArray = [], unfavoriteArray = [];
 
-        console.log(this.state); //dev
-        console.log(' ------- '); //dev
-        console.log(taskData); //dev
-
-
-        if (!taskMove.favorite) {
-
-            taskData.sort((a, b) => {
-                if (a.favorite === false) {
-                    return 1;
-                }
-                return 0;
-            });
-
-            // this.setState({ tasks: [...taskData] });
-
-            // console.log(taskData); //dev
+        for (let key in taskData) {
+            if(taskData[key].favorite && !taskData[key].completed ) {
+                favoriteArray.push(taskData[key]);
+            } else {
+                unfavoriteArray.push(taskData[key]);
+            }
         }
-    };
 
+        this.setState({ tasks: [...favoriteArray, newTask, ...unfavoriteArray] });
+    };
 
     _completeTask = (id) => {
         const { tasks: taskData } = this.state;
@@ -100,15 +80,26 @@ export default class Scheduler extends Component {
             taskData[key].completed = (taskData[key].id === id) ? !taskData[key].completed : taskData[key].completed;
         }
 
-        //Sort tasks
-        taskData.sort((a, b) => {
-            if (a.completed === true) {
-                return 1;
+          //Sort tasks
+        const complitedArray = [],
+            uncomplitedArray = [],
+            favoriteArray = [],
+            unfavoriteArray = [];
+        for (let key in taskData) {
+            if (taskData[key].completed) {
+                complitedArray.push(taskData[key]);
+            } else {
+                if (taskData[key].favorite) {
+                    favoriteArray.push(taskData[key]);
+                } else {
+                    unfavoriteArray.push(taskData[key]);
+                }
             }
-            return 0;
-        });
-        this.setState({ tasks: taskData });
+        }
+
+        this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
     };
+
 
     _favoriteTask = (id) => {
         const { tasks: taskData } = this.state;
@@ -119,21 +110,22 @@ export default class Scheduler extends Component {
         }
 
         //Sort tasks
-        taskData.sort((a, b) => {
-            if (a.completed === true) {
-                return 0;
+        const complitedArray = [],
+            favoriteArray = [],
+            unfavoriteArray = [];
+        for (let key in taskData) {
+
+            if (taskData[key].completed) {
+                complitedArray.push(taskData[key]);
+            } else {
+                if (taskData[key].favorite) {
+                    favoriteArray.push(taskData[key]);
+                } else {
+                    unfavoriteArray.push(taskData[key]);
+                }
             }
-
-            if (a.favorite === false) {
-                return 1;
-            }
-
-            return 0;
-        });
-        this.setState({ tasks: taskData });
-
-
-        console.log('------ _favoriteTask  ', taskData); //dev
+        }
+        this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
     };
 
     _deleteTask = (id) => {

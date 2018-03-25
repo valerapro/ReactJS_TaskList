@@ -1,5 +1,5 @@
 //Core
-import React, { Component } from 'react';
+import React, {Component, Fragment} from 'react';
 import { string, bool, func } from 'prop-types';
 
 // Components
@@ -57,7 +57,7 @@ export default class Task extends Component {
         const { color } = this.state;
 
         return (
-            <section>
+            <Fragment>
                 <div className = { completed ? `${Styles.task} ${Styles.completed}`: `${Styles.task}` }>
                     <span onClick = { this._onComplete }>
                         <Checkbox
@@ -65,20 +65,18 @@ export default class Task extends Component {
                             color2 = { color.completed.color2 }
                         />
                     </span>
-                    {favorite}
 
                         {/*<input value = { message } />*/}
-                        {message}
+                    <span>{message}</span>
 
                     <div>
                         <span>
-                            <Star
-                                checked = { favorite }
-                                hover = { favorite }
-                                color1 = { color.favorite.color1 }
-                                color2 = { color.favorite.color2 }
-                                onClick = { this._onFavorite }
-                            />
+                            <span onClick = { this._onFavorite }>
+                                <Star
+                                    color1 = { color.favorite.color1 }
+                                    color2 = { color.favorite.color2 }
+                                />
+                            </span>
                             <Edit
                                 color1 = { color.favorite.color1 }
                                 color2 = { color.favorite.color2 }
@@ -91,7 +89,7 @@ export default class Task extends Component {
                         </span>
                     </div>
                 </div>
-            </section>
+            </Fragment>
         );
     }
 }
