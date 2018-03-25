@@ -22,4 +22,4 @@ yarn-error.log*
 *.swp~
 .idea
 .vscode
-/src/config
+/src/config/index.js
