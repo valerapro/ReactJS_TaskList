@@ -9,7 +9,7 @@ import { Config } from '../../config';
 const options = {
     api:            Config.api,
     token:          Config.token,
-    messageLength:  46,
+    messageLength:  Config.messageLength,
 };
 
 export default class App extends Component {
