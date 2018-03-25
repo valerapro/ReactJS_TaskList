@@ -17,6 +17,7 @@ export default class Task extends Component {
         completeTask:    func.isRequired,
         created:         string.isRequired,
         deleteTask:      func.isRequired,
+        editTask:        func.isRequired,
         favorite:        bool.isRequired,
         favoriteTask:    func.isRequired,
         id:              string.isRequired,
@@ -47,6 +48,11 @@ export default class Task extends Component {
         favoriteTask(id);
     };
 
+    _onEdit = () => {
+        const { editTask, id } = this.props;
+        editTask(id);
+    };
+
     _onDelete = () => {
         const { deleteTask, id } = this.props;
         deleteTask(id);
@@ -58,7 +64,7 @@ export default class Task extends Component {
 
         return (
             <Fragment>
-                <div className = { completed ? `${Styles.task} ${Styles.completed}`: `${Styles.task}` }>
+                <li className = { completed ? `${Styles.task} ${Styles.completed}`: `${Styles.task}` }>
                     <span onClick = { this._onComplete }>
                         <Checkbox
                             color1 = { color.completed.color1 }
@@ -78,6 +84,7 @@ export default class Task extends Component {
                                 />
                             </span>
                             <Edit
+                                onClick = { this._onEdit }
                                 color1 = { color.favorite.color1 }
                                 color2 = { color.favorite.color2 }
                             />
@@ -88,7 +95,7 @@ export default class Task extends Component {
                             />
                         </span>
                     </div>
-                </div>
+                </li>
             </Fragment>
         );
     }

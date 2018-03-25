@@ -128,6 +128,11 @@ export default class Scheduler extends Component {
         this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
     };
 
+    _editTask = (id) => {
+        console.log('--- id ', id);
+
+    }
+
     _deleteTask = (id) => {
         this.setState(({ tasks }) => ({
             tasks: tasks.filter((task) => task.id !== id),
@@ -143,6 +148,7 @@ export default class Scheduler extends Component {
                     completeTask = { this._completeTask }
                     created = { task.created }
                     deleteTask = { this._deleteTask }
+                    editTask = { this._editTask }
                     favorite = { false }
                     favoriteTask = { this._favoriteTask }
                     id = { task.id }
@@ -172,7 +178,9 @@ export default class Scheduler extends Component {
                             />
                             <button type = 'submit'>Добавить задачу</button>
                         </form>
+                        <ul>
                         { tasks }
+                        </ul>
                     </section>
                     {/*<footer>*/}
                         {/*<span>*/}
