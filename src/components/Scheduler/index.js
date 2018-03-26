@@ -37,6 +37,7 @@ export default class Scheduler extends Component {
 						color2: '#3B8EF3',
 					},
 				},
+        isFetching: false,
 	};
 
     _handleSubmit (event) {
@@ -77,19 +78,80 @@ export default class Scheduler extends Component {
             created:   moment().format('MMMM D h:mm:ss a'),
         };
 
-        const { tasks: taskData } = this.state;
-        const favoriteArray = [], unfavoriteArray = [];
 
-        for (let key in taskData) {
-            if(taskData[key].favorite && !taskData[key].completed ) {
-                favoriteArray.push(taskData[key]);
-            } else {
-                unfavoriteArray.push(taskData[key]);
-            }
-        }
+        const { api, token } = this.context;
+        fetch(api, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token,
+            },
+            body: JSON.stringify(newTask),
+        })
+            .then((response) => {
+                if (response.status !== 200) {
+                    throw new Error('Create error post');
+                }
+                return response.json();
+            })
+            .then(({ data }) => {
 
-        this.setState({ tasks: [...favoriteArray, newTask, ...unfavoriteArray] });
+
+                console.log('--------  data', data);
+
+
+
+                const { tasks: taskData } = this.state;
+                const favoriteArray = [], unfavoriteArray = [];
+
+                for (let key in taskData) {
+                    if (taskData[key].favorite && !taskData[key].completed ) {
+                        favoriteArray.push(taskData[key]);
+                    } else {
+                        unfavoriteArray.push(taskData[key]);
+                    }
+                }
+
+                this.setState({ tasks: [...favoriteArray, newTask, ...unfavoriteArray] });
+
+
+            })
+            .catch((error) => {
+                console.log('_createTask ', error.message);
+            });
+
     };
+
+    componentDidMount () {
+        this._fetchTask();
+    };
+
+    _fetchTask = async () => {
+        const { api, token } = this.context;
+        try {
+            const response = await fetch(api, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token,
+                },
+            });
+
+            if (response.status !== 200) {
+                throw new Error('Error read posts');
+            }
+
+            const { data } = await response.json();
+
+            this.setState(({ tasks }) => ({
+                tasks: [...data, ...tasks],
+            }));
+        } catch ({ message }) {
+            console.log('_fetchTask ', message);
+        }
+    };
+
+
 
     _completeTask = (id) => {
         const { tasks: taskData } = this.state;
@@ -168,15 +230,39 @@ export default class Scheduler extends Component {
         this.setState({ tasks: taskData });
     };
 
-    _deleteTask = (id) => {
-    	const { completeAllTasks } = this.state;
-        this.setState(({ tasks }) => ({
-            tasks: tasks.filter((task) => task.id !== id),
-        }));
-        this.setState(({ tasks }) => ({
-			completeAllTasks: tasks.length > 0 ? completeAllTasks : false,
-        }));
-    };
+
+    _deleteTask = async (id) => {
+        const { api, token } = this.context;
+
+        console.log('_deleteTask ', id);
+
+        try {
+            const response = await fetch(`${api}${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': token,
+                },
+            });
+
+            if (response.status !== 204) {
+                throw new Error('Delete post failed');
+            }
+
+
+            const { completeAllTasks } = this.state;
+            this.setState(({ tasks }) => ({
+                tasks: tasks.filter((task) => task.id !== id),
+            }));
+            this.setState(({ tasks }) => ({
+                completeAllTasks: tasks.length > 0 ? completeAllTasks : false,
+            }));
+
+
+        } catch ({ message }) {
+            console.error('_deleteTask ', message);
+        }
+    }
+
 
     render () {
         const { tasks: taskData, message, messageSearch, stylesParams, completeAllTasks } = this.state;
