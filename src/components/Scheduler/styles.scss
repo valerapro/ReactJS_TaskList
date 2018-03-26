@@ -103,6 +103,9 @@
                 padding: 0;
                 max-height: 37rem;
                 overflow: scroll;
+			  	height: 100vh;
+				max-width: 100%;
+				overflow-x: hidden;
             }
         }
 

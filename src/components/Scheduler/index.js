@@ -1,6 +1,6 @@
 //Core
-import React, { Component } from 'react';
-import {string, number, boolean} from 'prop-types';
+import React, { Component, Fragment } from 'react';
+import { string, number } from 'prop-types';
 
 // Components
 import Styles from './styles.scss';
@@ -23,19 +23,20 @@ export default class Scheduler extends Component {
     }
 
     state = {
-        tasks:   	   [],
-        message:  	   '',
-		messageSearch: '',
-		stylesParams: {
-			completed: {
-				color1: '#3B8EF3',
-				color2: '#FFF',
-			},
-			favorite: {
-				color1: '#363636',
-				color2: '#3B8EF3',
-			},
-		},
+        tasks:   	      [],
+        message:  	      '',
+		messageSearch:    '',
+		completeAllTasks: false,
+		stylesParams:     {
+					completed: {
+						color1: '#3B8EF3',
+						color2: '#FFF',
+					},
+					favorite: {
+						color1: '#363636',
+						color2: '#3B8EF3',
+					},
+				},
 	};
 
     _handleSubmit (event) {
@@ -119,11 +120,11 @@ export default class Scheduler extends Component {
     };
 
 	_completeAllTasks = () => {
-        const { tasks: taskData } = this.state;
+        const { tasks: taskData, completeAllTasks } = this.state;
         for (let key in taskData) {
             taskData[key].completed = true;
         }
-        this.setState({ tasks: taskData });
+        this.setState({ tasks: taskData, completeAllTasks: true });
     };
 
     _favoriteTask = (id) => {
@@ -159,15 +160,19 @@ export default class Scheduler extends Component {
     }
 
     _deleteTask = (id) => {
+    	const { completeAllTasks } = this.state;
         this.setState(({ tasks }) => ({
             tasks: tasks.filter((task) => task.id !== id),
+        }));
+        this.setState(({ tasks }) => ({
+			completeAllTasks: tasks.length > 0 ? completeAllTasks : false,
         }));
     };
 
     render () {
-        const { tasks: taskData, message, messageSearch, stylesParams } = this.state;
+        const { tasks: taskData, message, messageSearch, stylesParams, completeAllTasks } = this.state;
 
-		const tasks = messageSearch ? taskData
+		const filteredTasks = messageSearch ? taskData
 			.filter((task) => task.message.includes(messageSearch))
 			.map((task) =>
 				<Catcher key = { task.id }>
@@ -217,19 +222,18 @@ export default class Scheduler extends Component {
                             <button type = 'submit'>Добавить задачу</button>
                         </form>
                         <ul>
-                        { tasks }
+                        { filteredTasks }
                         </ul>
                     </section>
-                    <footer onClick = { this._completeAllTasks }>
-                        <span>
+                    <footer>
+							<span onClick = { this._completeAllTasks }>
                             <Checkbox
+								checked = { completeAllTasks }
 								color1 = { stylesParams.completed.color1 }
 								color2 = { stylesParams.completed.color2 }
 							/>
                         </span>
-                        <code>
-                            Все задачи выполнены
-                        </code>
+							<code>Все задачи выполнены</code>
                     </footer>
                 </main>
             </section>
