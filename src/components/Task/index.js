@@ -51,41 +51,38 @@ export default class Task extends Component {
 
     _onEdit = () => {
         const { editTask, id } = this.props;
-		const { messageEditStatus } = this.state;
+		const { messageEditStatus, message } = this.state;
 
-		if(!messageEditStatus){
-
+		if(messageEditStatus){
+            editTask(id, message);
 		}
 
 		this.setState({
 			messageEditStatus: !messageEditStatus,
 		});
 
-       /* editTask(id);*/
+    };
+
+    _handleMessageChange = ({ target: { value }}) => {
+        if (value ){
+            this.setState({
+                message: value,
+            });
+        }
+    };
+
+    _handleKeyPressEsc = (event) => {
+        if (event.keyCode == 27 || event.key === 'Esc') {
+            this.setState({
+                messageEditStatus: false,
+            });
+        }
     };
 
     _onDelete = () => {
         const { deleteTask, id } = this.props;
         deleteTask(id);
     };
-
-
-    _handleSubmit(event) {
-        event.preventDefault();
-    }
-
-    _handleMessageChange = ({ target: { value }}) => {
-        this.setState({
-            message: value,
-        });
-    };
-
-    _hadleKeyPress = (event) => {
-        if (event.key === 'Esc') {
-
-        }
-    };
-
 
     render () {
         const { message, favorite, completed } = this.props;
@@ -103,14 +100,15 @@ export default class Task extends Component {
 							/>
 						</span>
 						{ messageEditStatus ?
-							<span>
-								<input
-									name = 'name'
-									type = 'text'
-									value = { message }
-									onChange = { this._handleSubmit }
-								/>
-							</span>
+                                <span>
+                                    <input
+                                        defaultValue = { message }
+                                        name = 'editMessage'
+                                        type = 'text'
+                                        onChange = { this._handleMessageChange }
+                                        onKeyDown = { this._handleKeyPressEsc }
+                                    />
+                                </span>
 							: <span>{message}</span> }
 					</div>
                     <div>

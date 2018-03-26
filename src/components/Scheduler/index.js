@@ -56,7 +56,7 @@ export default class Scheduler extends Component {
         });
     };
 
-    _hadleKeyPress = (event) => {
+    _handleKeyPressValidate = (event) => {
         if (event.key === 'Enter') {
             this._handleSubmit;
         }
@@ -116,6 +116,10 @@ export default class Scheduler extends Component {
             }
         }
 
+        if (favoriteArray || unfavoriteArray){
+            this.setState({ completeAllTasks: false });
+        }
+
         this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
     };
 
@@ -154,10 +158,15 @@ export default class Scheduler extends Component {
         this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
     };
 
-    _editTask = (id) => {
-        console.log('--- id ', id);
+    _editTask = (id, message) => {
+        const { tasks: taskData } = this.state;
 
-    }
+        for (let key in taskData) {
+            taskData[key].message = (taskData[key].id === id) ? message : taskData[key].message;
+        }
+
+        this.setState({ tasks: taskData });
+    };
 
     _deleteTask = (id) => {
     	const { completeAllTasks } = this.state;
@@ -211,7 +220,7 @@ export default class Scheduler extends Component {
                     </header>
                     <section>
                         <form
-                            onKeyPress = { this._hadleKeyPress }
+                            onKeyPress = { this._handleKeyPressValidate }
                             onSubmit = { this.handleSubmit }
                         >
                             <input
