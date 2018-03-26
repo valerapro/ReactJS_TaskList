@@ -8,13 +8,12 @@ import Task from '../Task';
 import Catcher from '../Catcher';
 import moment from 'moment';
 import { getUniqueID } from '../../helpers';
-import Checkbox from '../../theme/assets/Checkbox';
 
 export default class Scheduler extends Component {
     static contextTypes = {
-        api:            string.isRequired,
-        token:          string.isRequired,
-        messageLength:  number.isRequired,
+        api:           string.isRequired,
+        token:         string.isRequired,
+        messageLength: number.isRequired,
     };
 
     constructor () {
@@ -23,8 +22,9 @@ export default class Scheduler extends Component {
     }
 
     state = {
-        tasks:    [],
-        message:  '',
+        tasks:   	   [],
+        message:  	   '',
+		messageSearch: '',
     };
 
     _handleSubmit (event) {
@@ -34,6 +34,7 @@ export default class Scheduler extends Component {
         if (message.trim() && message.trim().length < messageLength) {
             this._createTask(message);
             this.setState({ message: '' });
+            this.setState({ messageSearch: '' });
         }
     }
 
@@ -48,6 +49,12 @@ export default class Scheduler extends Component {
             this._handleSubmit;
         }
     };
+
+	_handleKeyPressSearch = ({ target: { value }}) => {
+		 this.setState({
+			 messageSearch: value.trim(),
+		 });
+	 };
 
     _createTask = (message) => {
         const newTask = {
@@ -106,7 +113,7 @@ export default class Scheduler extends Component {
 
         //Replace status 'favorite'
         for (let key in taskData) {
-            taskData[key].favorite = (taskData[key].id === id) ? !taskData[key].favorite : taskData[key].favorite;
+            taskData[key].favorite = taskData[key].id === id ? !taskData[key].favorite : taskData[key].favorite;
         }
 
         //Sort tasks
@@ -140,31 +147,44 @@ export default class Scheduler extends Component {
     };
 
     render () {
-        const { tasks: taskData, message } = this.state;
-        const tasks = taskData.map((task) => (
-            <Catcher key = { task.id }>
-                <Task
-                    completed = { task.completed }
-                    completeTask = { this._completeTask }
-                    created = { task.created }
-                    deleteTask = { this._deleteTask }
-                    editTask = { this._editTask }
-                    favorite = { false }
-                    favoriteTask = { this._favoriteTask }
-                    id = { task.id }
-                    message = { task.message }
-                />
-            </Catcher>
-        ));
+        const { tasks: taskData, message, messageSearch } = this.state;
 
-        // console.log('taskData ', taskData);  //dev
+		const tasks = messageSearch ? taskData
+			.filter((task) => task.message.includes(messageSearch))
+			.map((task) =>
+				<Catcher key = { task.id }>
+					<Task
+						completeTask = { this._completeTask }
+						deleteTask = { this._deleteTask }
+						editTask = { this._editTask }
+						favoriteTask = { this._favoriteTask }
+						{ ...task }
+					/>
+				</Catcher>
+			) :
+			taskData.map((task) => (
+				<Catcher key = { task.id }>
+					<Task
+						completeTask = { this._completeTask }
+						deleteTask = { this._deleteTask }
+						editTask = { this._editTask }
+						favoriteTask = { this._favoriteTask }
+						{ ...task }
+					/>
+				</Catcher>
+			));
 
         return (
             <section className = { Styles.scheduler }>
                 <main>
                     <header>
                         <h1>Планировщик задач</h1>
-                        <input placeholder = { 'Поиск' } />
+						<input
+						 name = { 'messageSearch' }
+						 value = { messageSearch }
+						 onChange = { this._handleKeyPressSearch }
+						 placeholder = { 'Поиск' }
+						 />
                     </header>
                     <section>
                         <form
