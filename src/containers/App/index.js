@@ -13,7 +13,6 @@ const options = {
 };
 
 export default class App extends Component {
-
     static childContextTypes = {
         api:            string.isRequired,
         token:          string.isRequired,

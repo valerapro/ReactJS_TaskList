@@ -8,6 +8,7 @@ import Task from '../Task';
 import Catcher from '../Catcher';
 import moment from 'moment';
 import { getUniqueID } from '../../helpers';
+import Checkbox from '../../theme/assets/Checkbox';
 
 export default class Scheduler extends Component {
     static contextTypes = {
@@ -25,7 +26,17 @@ export default class Scheduler extends Component {
         tasks:   	   [],
         message:  	   '',
 		messageSearch: '',
-    };
+		stylesParams: {
+			completed: {
+				color1: '#3B8EF3',
+				color2: '#FFF',
+			},
+			favorite: {
+				color1: '#363636',
+				color2: '#3B8EF3',
+			},
+		},
+	};
 
     _handleSubmit (event) {
         event.preventDefault();
@@ -107,6 +118,13 @@ export default class Scheduler extends Component {
         this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
     };
 
+	_completeAllTasks = () => {
+        const { tasks: taskData } = this.state;
+        for (let key in taskData) {
+            taskData[key].completed = true;
+        }
+        this.setState({ tasks: taskData });
+    };
 
     _favoriteTask = (id) => {
         const { tasks: taskData } = this.state;
@@ -147,7 +165,7 @@ export default class Scheduler extends Component {
     };
 
     render () {
-        const { tasks: taskData, message, messageSearch } = this.state;
+        const { tasks: taskData, message, messageSearch, stylesParams } = this.state;
 
 		const tasks = messageSearch ? taskData
 			.filter((task) => task.message.includes(messageSearch))
@@ -202,14 +220,17 @@ export default class Scheduler extends Component {
                         { tasks }
                         </ul>
                     </section>
-                    {/*<footer>*/}
-                        {/*<span>*/}
-                            {/*<Checkbox />*/}
-                        {/*</span>*/}
-                        {/*<code>*/}
-                            {/*Все задачи выполнены*/}
-                        {/*</code>*/}
-                    {/*</footer>*/}
+                    <footer onClick = { this._completeAllTasks }>
+                        <span>
+                            <Checkbox
+								color1 = { stylesParams.completed.color1 }
+								color2 = { stylesParams.completed.color2 }
+							/>
+                        </span>
+                        <code>
+                            Все задачи выполнены
+                        </code>
+                    </footer>
                 </main>
             </section>
         );

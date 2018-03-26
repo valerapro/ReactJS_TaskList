@@ -26,7 +26,7 @@ export default class Task extends Component {
 
 
     state = {
-        color: {
+        stylesParams: {
             completed: {
                 color1: '#3B8EF3',
                 color2: '#FFF',
@@ -76,19 +76,18 @@ export default class Task extends Component {
     };
 
 
-
-
     render () {
         const { message, favorite, completed } = this.props;
-        const { color } = this.state;
+        const { stylesParams } = this.state;
 
         return (
             <Fragment>
                 <li className = { completed ? `${Styles.task} ${Styles.completed}`: `${Styles.task}` }>
                     <span onClick = { this._onComplete }>
                         <Checkbox
-                            color1 = { color.completed.color1 }
-                            color2 = { color.completed.color2 }
+                            color1 = { stylesParams.completed.color1 }
+                            color2 = { stylesParams.completed.color2 }
+							checked = { completed }
                         />
                     </span>
 
@@ -106,18 +105,18 @@ export default class Task extends Component {
                         <span>
                             <span onClick = { this._onFavorite }>
                                 <Star
-                                    color1 = { color.favorite.color1 }
-                                    color2 = { color.favorite.color2 }
+                                    color1 = { stylesParams.favorite.color1 }
+                                    color2 = { stylesParams.favorite.color2 }
                                 />
                             </span>
                             <Edit
                                 onClick = { this._onEdit }
-                                color1 = { color.favorite.color1 }
-                                color2 = { color.favorite.color2 }
+                                color1 = { stylesParams.favorite.color1 }
+                                color2 = { stylesParams.favorite.color2 }
                             />
                             <Delete
-                                color1 = { color.favorite.color1 }
-                                color2 = { color.favorite.color2 }
+                                color1 = { stylesParams.favorite.color1 }
+                                color2 = { stylesParams.favorite.color2 }
                                 onClick = { this._onDelete }
                             />
                         </span>
