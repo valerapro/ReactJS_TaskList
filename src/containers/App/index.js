@@ -7,16 +7,16 @@ import { string, number } from 'prop-types';
 import { Config } from '../../config';
 
 const options = {
-    api:            Config.api,
-    token:          Config.token,
-    messageLength:  Config.messageLength,
+    api:           Config.api,
+    token:         Config.token,
+    messageLength: Config.messageLength,
 };
 
 export default class App extends Component {
     static childContextTypes = {
-        api:            string.isRequired,
-        token:          string.isRequired,
-        messageLength:  number.isRequired,
+        api:           string.isRequired,
+        token:         string.isRequired,
+        messageLength: number.isRequired,
     };
 
 

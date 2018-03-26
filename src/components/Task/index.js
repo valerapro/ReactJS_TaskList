@@ -1,10 +1,9 @@
 //Core
-import React, {Component, Fragment} from 'react';
+import React, { Component } from 'react';
 import { string, bool, func } from 'prop-types';
 
 // Components
 import Styles from './styles.scss';
-import moment from 'moment/moment';
 import Checkbox from '../../theme/assets/Checkbox';
 import Delete from '../../theme/assets/Delete';
 import Edit from '../../theme/assets/Edit';
@@ -13,15 +12,15 @@ import Star from '../../theme/assets/Star';
 
 export default class Task extends Component {
     static propTypes = {
-        completed:       bool.isRequired,
-        completeTask:    func.isRequired,
-        created:         string.isRequired,
-        deleteTask:      func.isRequired,
-        editTask:        func.isRequired,
-        favorite:        bool.isRequired,
-        favoriteTask:    func.isRequired,
-        id:              string.isRequired,
-        message:         string.isRequired,
+        completed:    bool.isRequired,
+        completeTask: func.isRequired,
+        created:      string.isRequired,
+        deleteTask:   func.isRequired,
+        editTask:     func.isRequired,
+        favorite:     bool.isRequired,
+        favoriteTask: func.isRequired,
+        id:           string.isRequired,
+        message:      string.isRequired,
     };
 
 

@@ -1,5 +1,5 @@
 //Core
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { string, number } from 'prop-types';
 
 // Components
