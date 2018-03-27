@@ -172,7 +172,7 @@ export default class Scheduler extends Component {
     _sortTasks = () => {
 		const { tasks: taskData } = this.state;
 		//Sort tasks
-		let complitedArray = [],
+		const complitedArray = [],
 			favoriteArray = [],
 			unfavoriteArray = [];
 		for (let key in taskData) {
