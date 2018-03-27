@@ -288,7 +288,8 @@ export default class Scheduler extends Component {
 				</Catcher>
 			));
 
-		const completeAllTasks = taskData ? true : false;
+		const completedTasks = taskData.filter((task) => task.completed === true).length;
+		const completeAllTasks = (completedTasks == 0 || taskData.length === completedTasks) ? true : false;
 
         return (
             <section className = { Styles.scheduler }>
