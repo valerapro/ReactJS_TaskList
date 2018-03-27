@@ -69,13 +69,6 @@ export default class Scheduler extends Component {
 	 };
 
     _createTask = (message) => {
-        const newTask = {
-            message,
-            completed: false,
-            favorite:  false,
-            created:   moment().format('MMMM D h:mm:ss a'),
-        };
-
         const { api, token } = this.context;
         fetch(api, {
             method: 'POST',
@@ -83,7 +76,7 @@ export default class Scheduler extends Component {
                 'Content-Type': 'application/json',
                 'Authorization': token,
             },
-            body: JSON.stringify(newTask),
+            body: JSON.stringify({ message }),
         })
             .then((response) => {
                 if (response.status !== 200) {
@@ -111,6 +104,34 @@ export default class Scheduler extends Component {
 
     };
 
+	_updateTask = async (id) => {
+
+		const { api, token } = this.context;
+		const { tasks } = this.state;
+		const updateTask = tasks.filter((task) => task.id === id);
+
+		try {
+			const response = await fetch(api, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': token,
+				},
+				body: JSON.stringify(updateTask),
+			})
+
+			if (response.status !== 200) {
+				throw new Error('Create error post');
+			}
+
+			// const { data } = await response.json();
+
+		}
+		catch({ message }) {
+			console.log('_updateTask ', message);
+		}
+	};
+
     componentDidMount () {
         this._fetchTask();
     };
@@ -132,15 +153,37 @@ export default class Scheduler extends Component {
 
             const { data } = await response.json();
 
-            this.setState(({ tasks }) => ({
-                tasks: [...data, ...tasks],
-            }));
+            this.setState({ tasks: [...data] });
+			this._sortTasks();
+
         } catch ({ message }) {
             console.log('_fetchTask ', message);
         }
     };
 
+    _sortTasks = () => {
+		const { tasks: taskData } = this.state;
+		//Sort tasks
+		const complitedArray = [],
+			favoriteArray = [],
+			unfavoriteArray = [];
+		for (let key in taskData) {
+			if (taskData[key].completed) {
+				complitedArray.push(taskData[key]);
+			} else {
+				if (taskData[key].favorite) {
+					favoriteArray.push(taskData[key]);
+				} else {
+					unfavoriteArray.push(taskData[key]);
+				}
+			}
+		}
+		if (favoriteArray || unfavoriteArray){
+			this.setState({ completeAllTasks: false });
+		}
 
+		this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
+	}
 
     _completeTask = (id) => {
         const { tasks: taskData } = this.state;
@@ -150,28 +193,8 @@ export default class Scheduler extends Component {
             taskData[key].completed = (taskData[key].id === id) ? !taskData[key].completed : taskData[key].completed;
         }
 
-          //Sort tasks
-        const complitedArray = [],
-            uncomplitedArray = [],
-            favoriteArray = [],
-            unfavoriteArray = [];
-        for (let key in taskData) {
-            if (taskData[key].completed) {
-                complitedArray.push(taskData[key]);
-            } else {
-                if (taskData[key].favorite) {
-                    favoriteArray.push(taskData[key]);
-                } else {
-                    unfavoriteArray.push(taskData[key]);
-                }
-            }
-        }
-
-        if (favoriteArray || unfavoriteArray){
-            this.setState({ completeAllTasks: false });
-        }
-
-        this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
+        this._sortTasks();
+        this._updateTask(id);
     };
 
 	_completeAllTasks = () => {
@@ -180,6 +203,7 @@ export default class Scheduler extends Component {
             taskData[key].completed = true;
         }
         this.setState({ tasks: taskData, completeAllTasks: true });
+        //TODO make update for all tickets   this._updateTask(id);
     };
 
     _favoriteTask = (id) => {
@@ -190,23 +214,8 @@ export default class Scheduler extends Component {
             taskData[key].favorite = taskData[key].id === id ? !taskData[key].favorite : taskData[key].favorite;
         }
 
-        //Sort tasks
-        const complitedArray = [],
-            favoriteArray = [],
-            unfavoriteArray = [];
-        for (let key in taskData) {
-
-            if (taskData[key].completed) {
-                complitedArray.push(taskData[key]);
-            } else {
-                if (taskData[key].favorite) {
-                    favoriteArray.push(taskData[key]);
-                } else {
-                    unfavoriteArray.push(taskData[key]);
-                }
-            }
-        }
-        this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
+		this._sortTasks();
+		this._updateTask(id);
     };
 
     _editTask = (id, message) => {
@@ -217,8 +226,8 @@ export default class Scheduler extends Component {
         }
 
         this.setState({ tasks: taskData });
+		this._updateTask(id);
     };
-
 
     _deleteTask = async (id) => {
         const { api, token } = this.context;

@@ -101,6 +101,7 @@ export default class Task extends Component {
 						{ messageEditStatus ?
                                 <span>
                                     <input
+										autoFocus
                                         defaultValue = { message }
                                         name = 'editMessage'
                                         type = 'text'
