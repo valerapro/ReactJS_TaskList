@@ -7,7 +7,6 @@ import Styles from './styles.scss';
 import Task from '../Task';
 import Catcher from '../Catcher';
 import moment from 'moment';
-import { getUniqueID } from '../../helpers';
 import Checkbox from '../../theme/assets/Checkbox';
 
 export default class Scheduler extends Component {
@@ -71,13 +70,11 @@ export default class Scheduler extends Component {
 
     _createTask = (message) => {
         const newTask = {
-            id:        getUniqueID(),
             message,
             completed: false,
             favorite:  false,
             created:   moment().format('MMMM D h:mm:ss a'),
         };
-
 
         const { api, token } = this.context;
         fetch(api, {
@@ -95,12 +92,6 @@ export default class Scheduler extends Component {
                 return response.json();
             })
             .then(({ data }) => {
-
-
-                console.log('--------  data', data);
-
-
-
                 const { tasks: taskData } = this.state;
                 const favoriteArray = [], unfavoriteArray = [];
 
@@ -112,9 +103,7 @@ export default class Scheduler extends Component {
                     }
                 }
 
-                this.setState({ tasks: [...favoriteArray, newTask, ...unfavoriteArray] });
-
-
+                this.setState({ tasks: [...favoriteArray, data, ...unfavoriteArray] });
             })
             .catch((error) => {
                 console.log('_createTask ', error.message);
@@ -234,10 +223,8 @@ export default class Scheduler extends Component {
     _deleteTask = async (id) => {
         const { api, token } = this.context;
 
-        console.log('_deleteTask ', id);
-
         try {
-            const response = await fetch(`${api}${id}`, {
+            const response = await fetch(`${api}/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': token,
@@ -248,7 +235,6 @@ export default class Scheduler extends Component {
                 throw new Error('Delete post failed');
             }
 
-
             const { completeAllTasks } = this.state;
             this.setState(({ tasks }) => ({
                 tasks: tasks.filter((task) => task.id !== id),
@@ -257,11 +243,10 @@ export default class Scheduler extends Component {
                 completeAllTasks: tasks.length > 0 ? completeAllTasks : false,
             }));
 
-
         } catch ({ message }) {
             console.error('_deleteTask ', message);
         }
-    }
+    };
 
 
     render () {
