@@ -6,7 +6,6 @@ import { string, number } from 'prop-types';
 import Styles from './styles.scss';
 import Task from '../Task';
 import Catcher from '../Catcher';
-import moment from 'moment';
 import Checkbox from '../../theme/assets/Checkbox';
 
 export default class Scheduler extends Component {
