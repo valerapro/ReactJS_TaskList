@@ -25,7 +25,6 @@ export default class Scheduler extends Component {
         tasks:   	      [],
         message:  	      '',
 		messageSearch:    '',
-		completeAllTasks: false,
 		stylesParams:     {
 					completed: {
 						color1: '#3B8EF3',
@@ -105,10 +104,20 @@ export default class Scheduler extends Component {
     };
 
 	_updateTask = async (id) => {
+		if (typeof id === 'undefined') {
+			const { tasks: taskData } = this.state;
+			taskData.forEach((task) => {
+				this._updateOneTask([task]);
+			});
+		} else {
+			const { tasks } = this.state;
+			const taskData = tasks.filter((task) => task.id === id);
+			this._updateOneTask(taskData);
+		}
+	};
 
+	_updateOneTask = async (task) => {
 		const { api, token } = this.context;
-		const { tasks } = this.state;
-		const updateTask = tasks.filter((task) => task.id === id);
 
 		try {
 			const response = await fetch(api, {
@@ -117,10 +126,10 @@ export default class Scheduler extends Component {
 					'Content-Type': 'application/json',
 					'Authorization': token,
 				},
-				body: JSON.stringify(updateTask),
+				body: JSON.stringify(task),
 			})
 
-			if (response.status !== 200) {
+			if(response.status !== 200) {
 				throw new Error('Create error post');
 			}
 
@@ -130,7 +139,7 @@ export default class Scheduler extends Component {
 		catch({ message }) {
 			console.log('_updateTask ', message);
 		}
-	};
+	}
 
     componentDidMount () {
         this._fetchTask();
@@ -164,7 +173,7 @@ export default class Scheduler extends Component {
     _sortTasks = () => {
 		const { tasks: taskData } = this.state;
 		//Sort tasks
-		const complitedArray = [],
+		let complitedArray = [],
 			favoriteArray = [],
 			unfavoriteArray = [];
 		for (let key in taskData) {
@@ -177,9 +186,6 @@ export default class Scheduler extends Component {
 					unfavoriteArray.push(taskData[key]);
 				}
 			}
-		}
-		if (favoriteArray || unfavoriteArray){
-			this.setState({ completeAllTasks: false });
 		}
 
 		this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
@@ -198,12 +204,12 @@ export default class Scheduler extends Component {
     };
 
 	_completeAllTasks = () => {
-        const { tasks: taskData, completeAllTasks } = this.state;
+        const { tasks: taskData } = this.state;
         for (let key in taskData) {
             taskData[key].completed = true;
         }
-        this.setState({ tasks: taskData, completeAllTasks: true });
-        //TODO make update for all tickets   this._updateTask(id);
+        this.setState({ tasks: taskData });
+		this._updateTask();
     };
 
     _favoriteTask = (id) => {
@@ -244,13 +250,10 @@ export default class Scheduler extends Component {
                 throw new Error('Delete post failed');
             }
 
-            const { completeAllTasks } = this.state;
             this.setState(({ tasks }) => ({
                 tasks: tasks.filter((task) => task.id !== id),
             }));
-            this.setState(({ tasks }) => ({
-                completeAllTasks: tasks.length > 0 ? completeAllTasks : false,
-            }));
+
 
         } catch ({ message }) {
             console.error('_deleteTask ', message);
@@ -259,7 +262,7 @@ export default class Scheduler extends Component {
 
 
     render () {
-        const { tasks: taskData, message, messageSearch, stylesParams, completeAllTasks } = this.state;
+        const { tasks: taskData, message, messageSearch, stylesParams } = this.state;
 
 		const filteredTasks = messageSearch ? taskData
 			.filter((task) => task.message.includes(messageSearch))
@@ -285,6 +288,8 @@ export default class Scheduler extends Component {
 					/>
 				</Catcher>
 			));
+
+		const completeAllTasks = taskData ? true : false;
 
         return (
             <section className = { Styles.scheduler }>
