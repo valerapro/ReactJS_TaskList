@@ -103,44 +103,6 @@ export default class Scheduler extends Component {
 
     };
 
-	_updateTask = async (id) => {
-		if (typeof id === 'undefined') {
-			const { tasks: taskData } = this.state;
-			taskData.forEach((task) => {
-				this._updateOneTask([task]);
-			});
-		} else {
-			const { tasks } = this.state;
-			const taskData = tasks.filter((task) => task.id === id);
-			this._updateOneTask(taskData);
-		}
-	};
-
-	_updateOneTask = async (task) => {
-		const { api, token } = this.context;
-
-		try {
-			const response = await fetch(api, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': token,
-				},
-				body: JSON.stringify(task),
-			})
-
-			if(response.status !== 200) {
-				throw new Error('Create error post');
-			}
-
-			// const { data } = await response.json();
-
-		}
-		catch({ message }) {
-			console.log('_updateTask ', message);
-		}
-	}
-
     componentDidMount () {
         this._fetchTask();
     };
@@ -203,7 +165,7 @@ export default class Scheduler extends Component {
         this._updateTask(id);
     };
 
-	_completeAllTasks = () => {
+    _completeAllTasks = () => {
         const { tasks: taskData } = this.state;
         for (let key in taskData) {
             taskData[key].completed = true;
@@ -234,6 +196,44 @@ export default class Scheduler extends Component {
         this.setState({ tasks: taskData });
 		this._updateTask(id);
     };
+
+    _updateTask = async (id) => {
+		if (typeof id === 'undefined') {
+			const { tasks: taskData } = this.state;
+			taskData.forEach((task) => {
+				this._updateOneTask([task]);
+			});
+		} else {
+			const { tasks } = this.state;
+			const taskData = tasks.filter((task) => task.id === id);
+			this._updateOneTask(taskData);
+		}
+	};
+
+    _updateOneTask = async (task) => {
+		const { api, token } = this.context;
+
+		try {
+			const response = await fetch(api, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': token,
+				},
+				body: JSON.stringify(task),
+			})
+
+			if(response.status !== 200) {
+				throw new Error('Create error post');
+			}
+
+			// const { data } = await response.json();
+
+		}
+		catch({ message }) {
+			console.log('_updateTask ', message);
+		}
+	}
 
     _deleteTask = async (id) => {
         const { api, token } = this.context;
@@ -270,7 +270,9 @@ export default class Scheduler extends Component {
 				<CSSTransition
 					classNames = { {
 								enter:       Styles.taskInStart,
-								enterActive: Styles.taskInEnd
+								enterActive: Styles.taskInEnd,
+								exit:        Styles.postRmStart,
+					            exitActive:  Styles.postRmEnd,
 							} }
 					key = { task.id }
 					timeout = { 700 }
@@ -290,7 +292,9 @@ export default class Scheduler extends Component {
 				<CSSTransition
 					classNames = { {
 						enter:       Styles.taskInStart,
-						enterActive: Styles.taskInEnd
+						enterActive: Styles.taskInEnd,
+						exit:        Styles.taskRmStart,
+						exitActive:  Styles.taskRmEnd,
 					} }
 					key = { task.id }
 					timeout = { 700 }
