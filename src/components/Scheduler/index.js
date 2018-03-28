@@ -1,7 +1,7 @@
 //Core
 import React, { Component } from 'react';
 import { string, number } from 'prop-types';
-import { CSSTransition, Transition, TransitionGroup } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 // Components
 import Styles from './styles.scss';
@@ -22,26 +22,30 @@ export default class Scheduler extends Component {
     }
 
     state = {
-        tasks:   	      [],
-        message:  	      '',
-		messageSearch:    '',
-		stylesParams:     {
-					completed: {
-						color1: '#3B8EF3',
-						color2: '#FFF',
-					},
-					favorite: {
-						color1: '#363636',
-						color2: '#3B8EF3',
-					},
-				},
-        isFetching: false,
-	};
+        tasks:         [],
+        message:       '',
+        messageSearch: '',
+        stylesParams:  {
+            completed: {
+                color1: '#3B8EF3',
+                color2: '#FFF',
+            },
+            favorite: {
+                color1: '#363636',
+                color2: '#3B8EF3',
+            },
+        },
+    };
+
+    componentDidMount () {
+        this._fetchTask();
+    }
 
     _handleSubmit (event) {
         event.preventDefault();
         const { message } = this.state;
         const { messageLength } = this.context;
+
         if (message.trim() && message.trim().length < messageLength) {
             this._createTask(message);
             this.setState({ message: '' });
@@ -61,18 +65,19 @@ export default class Scheduler extends Component {
         }
     };
 
-	_handleKeyPressSearch = ({ target: { value }}) => {
-		 this.setState({
-			 messageSearch: value.trim(),
-		 });
-	 };
+    _handleKeyPressSearch = ({ target: { value }}) => {
+        this.setState({
+            messageSearch: value.trim(),
+        });
+    };
 
     _createTask = (message) => {
         const { api, token } = this.context;
+
         fetch(api, {
-            method: 'POST',
+            method:  'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type':  'application/json',
                 'Authorization': token,
             },
             body: JSON.stringify({ message }),
@@ -81,21 +86,23 @@ export default class Scheduler extends Component {
                 if (response.status !== 200) {
                     throw new Error('Create error post');
                 }
+
                 return response.json();
             })
             .then(({ data }) => {
                 const { tasks: taskData } = this.state;
-                const favoriteArray = [], unfavoriteArray = [];
+                const favoriteArray = [];
+                const unfavoriteArray = [];
 
-                for (let key in taskData) {
-                    if (taskData[key].favorite && !taskData[key].completed ) {
+                for (const key in taskData) {
+                    if (taskData[key].favorite && !taskData[key].completed) {
                         favoriteArray.push(taskData[key]);
                     } else {
                         unfavoriteArray.push(taskData[key]);
                     }
                 }
 
-                this.setState({ tasks: [...favoriteArray, data, ...unfavoriteArray] });
+                this.setState({ tasks: [...favoriteArray, data, ...unfavoriteArray]});
             })
             .catch((error) => {
                 console.log('_createTask ', error.message);
@@ -103,17 +110,14 @@ export default class Scheduler extends Component {
 
     };
 
-    componentDidMount () {
-        this._fetchTask();
-    };
-
     _fetchTask = async () => {
         const { api, token } = this.context;
+
         try {
             const response = await fetch(api, {
-                method: 'GET',
+                method:  'GET',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type':  'application/json',
                     'Authorization': token,
                 },
             });
@@ -124,41 +128,39 @@ export default class Scheduler extends Component {
 
             const { data } = await response.json();
 
-            this.setState({ tasks: [...data] });
-			this._sortTasks();
-
+            this.setState({ tasks: [...data]});
+            this._sortTasks();
         } catch ({ message }) {
             console.log('_fetchTask ', message);
         }
     };
 
     _sortTasks = () => {
-		const { tasks: taskData } = this.state;
-		//Sort tasks
-		const complitedArray = [],
-			favoriteArray = [],
-			unfavoriteArray = [];
-		for (let key in taskData) {
-			if (taskData[key].completed) {
-				complitedArray.push(taskData[key]);
-			} else {
-				if (taskData[key].favorite) {
-					favoriteArray.push(taskData[key]);
-				} else {
-					unfavoriteArray.push(taskData[key]);
-				}
-			}
-		}
+        const { tasks: taskData } = this.state;
+        const complitedArray = [];
+        const favoriteArray = [];
+        const unfavoriteArray = [];
 
-		this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray] });
-	}
+        for (const key in taskData) {
+            if (taskData[key].completed) {
+                complitedArray.push(taskData[key]);
+            } else if (taskData[key].favorite) {
+                favoriteArray.push(taskData[key]);
+            } else {
+                unfavoriteArray.push(taskData[key]);
+            }
+        }
+
+        this.setState({ tasks: [...favoriteArray, ...unfavoriteArray, ...complitedArray]});
+    };
 
     _completeTask = (id) => {
         const { tasks: taskData } = this.state;
 
-        //Replace status 'complite'
-        for (let key in taskData) {
-            taskData[key].completed = (taskData[key].id === id) ? !taskData[key].completed : taskData[key].completed;
+        for (const key in taskData) {
+            if (taskData[key].id === id) {
+                taskData[key].completed = !taskData[key].completed;
+            }
         }
 
         this._sortTasks();
@@ -167,80 +169,84 @@ export default class Scheduler extends Component {
 
     _completeAllTasks = () => {
         const { tasks: taskData } = this.state;
-        for (let key in taskData) {
+
+        /*for (const key in taskData) {
             taskData[key].completed = true;
-        }
+        }*/
+        taskData.map((task) => task.completed = true);
+
         this.setState({ tasks: taskData });
-		this._updateTask();
+        this._updateTask();
     };
 
     _favoriteTask = (id) => {
         const { tasks: taskData } = this.state;
 
-        //Replace status 'favorite'
-        for (let key in taskData) {
-            taskData[key].favorite = taskData[key].id === id ? !taskData[key].favorite : taskData[key].favorite;
+        for (const key in taskData) {
+            if (taskData[key].id === id) {
+                taskData[key].favorite = !taskData[key].favorite;
+            }
         }
 
-		this._sortTasks();
-		this._updateTask(id);
+        this._sortTasks();
+        this._updateTask(id);
     };
 
     _editTask = (id, message) => {
         const { tasks: taskData } = this.state;
 
-        for (let key in taskData) {
-            taskData[key].message = (taskData[key].id === id) ? message : taskData[key].message;
+        for (const key in taskData) {
+            if (taskData[key].id === id) {
+                taskData[key].message = message;
+            }
         }
 
         this.setState({ tasks: taskData });
-		this._updateTask(id);
+        this._updateTask(id);
     };
 
-    _updateTask = async (id) => {
-		if (typeof id === 'undefined') {
-			const { tasks: taskData } = this.state;
-			taskData.forEach((task) => {
-				this._updateOneTask([task]);
-			});
-		} else {
-			const { tasks } = this.state;
-			const taskData = tasks.filter((task) => task.id === id);
-			this._updateOneTask(taskData);
-		}
-	};
+    _updateTask = (id) => {
+        if (typeof id === 'undefined') {
+            const { tasks: taskData } = this.state;
+
+            taskData.forEach((task) => {
+                this._updateOneTask([task]);
+            });
+        } else {
+            const { tasks } = this.state;
+            const taskData = tasks.filter((task) => task.id === id);
+
+            this._updateOneTask(taskData);
+        }
+    };
 
     _updateOneTask = async (task) => {
-		const { api, token } = this.context;
+        const { api, token } = this.context;
 
-		try {
-			const response = await fetch(api, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': token,
-				},
-				body: JSON.stringify(task),
-			})
+        try {
+            const response = await fetch(api, {
+                method:  'PUT',
+                headers: {
+                    'Content-Type':  'application/json',
+                    'Authorization': token,
+                },
+                body: JSON.stringify(task),
+            });
 
-			if(response.status !== 200) {
-				throw new Error('Create error post');
-			}
-
-			// const { data } = await response.json();
-
-		}
-		catch({ message }) {
-			console.log('_updateTask ', message);
-		}
-	}
+            if (response.status !== 200) {
+                throw new Error('Create error post');
+            }
+        } catch ({ message }) {
+            console.log('_updateTask ', message);
+        }
+    };
 
     _deleteTask = async (id) => {
         const { api, token } = this.context;
 
         try {
             const response = await fetch(`${api}/${id}`, {
-                method: 'DELETE',
+                method:  'DELETE',
                 headers: {
                     'Authorization': token,
                 },

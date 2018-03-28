@@ -32,4 +32,4 @@ class Checkbox extends Component {
     }
 }
 
-export default    transform({ viewBoxWidth: 27, viewBoxHeight: 27, width: 25, height: 25 })(Checkbox);
+export default transform({ viewBoxWidth: 27, viewBoxHeight: 27, width: 25, height: 25 })(Checkbox);
