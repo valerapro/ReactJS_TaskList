@@ -1,6 +1,7 @@
 //Core
 import React, { Component } from 'react';
 import { string, number } from 'prop-types';
+import { CSSTransition, Transition, TransitionGroup } from 'react-transition-group';
 
 // Components
 import Styles from './styles.scss';
@@ -266,6 +267,14 @@ export default class Scheduler extends Component {
 		const filteredTasks = messageSearch ? taskData
 			.filter((task) => task.message.includes(messageSearch))
 			.map((task) =>
+				<CSSTransition
+					classNames = { {
+								enter:       Styles.taskInStart,
+								enterActive: Styles.taskInEnd
+							} }
+					key = { task.id }
+					timeout = { 700 }
+	            >
 				<Catcher key = { task.id }>
 					<Task
 						completeTask = { this._completeTask }
@@ -275,8 +284,17 @@ export default class Scheduler extends Component {
 						{ ...task }
 					/>
 				</Catcher>
+				</CSSTransition>
 			) :
 			taskData.map((task) => (
+				<CSSTransition
+					classNames = { {
+						enter:       Styles.taskInStart,
+						enterActive: Styles.taskInEnd
+					} }
+					key = { task.id }
+					timeout = { 700 }
+				>
 				<Catcher key = { task.id }>
 					<Task
 						completeTask = { this._completeTask }
@@ -286,6 +304,7 @@ export default class Scheduler extends Component {
 						{ ...task }
 					/>
 				</Catcher>
+				</CSSTransition>
 			));
 
 		const completeAllTasks = taskData.filter((task) => task.completed === true).length == taskData.length ? true : false;
@@ -315,7 +334,9 @@ export default class Scheduler extends Component {
                             <button type = 'submit'>Добавить задачу</button>
                         </form>
                         <ul>
-                        { filteredTasks }
+							<TransitionGroup>
+								{ filteredTasks }
+							</TransitionGroup>
                         </ul>
                     </section>
                     <footer>
