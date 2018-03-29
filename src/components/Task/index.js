@@ -25,8 +25,8 @@ export default class Task extends Component {
 
 
     state = {
-		messageEditStatus: false,
-        stylesParams: {
+        messageEditStatus: false,
+        stylesParams:      {
             completed: {
                 color1: '#3B8EF3',
                 color2: '#FFF',
@@ -40,30 +40,32 @@ export default class Task extends Component {
 
     _onComplete = () => {
         const { completeTask, id } = this.props;
+
         completeTask(id);
     };
 
     _onFavorite = () => {
         const { favoriteTask, id } = this.props;
+
         favoriteTask(id);
     };
 
     _onEdit = () => {
         const { editTask, id } = this.props;
-		const { messageEditStatus, message } = this.state;
+        const { messageEditStatus, message } = this.state;
 
-		if(messageEditStatus){
+        if (messageEditStatus) {
             editTask(id, message);
-		}
+        }
 
-		this.setState({
-			messageEditStatus: !messageEditStatus,
-		});
+        this.setState({
+            messageEditStatus: !messageEditStatus,
+        });
 
     };
 
     _handleMessageChange = ({ target: { value }}) => {
-        if (value ){
+        if (value) {
             this.setState({
                 message: value,
             });
@@ -71,7 +73,7 @@ export default class Task extends Component {
     };
 
     _handleKeyPressEsc = (event) => {
-        if (event.keyCode == 27 || event.key === 'Esc') {
+        if (event.keyCode === 27 || event.key === 'Esc') {
             this.setState({
                 messageEditStatus: false,
             });
@@ -80,6 +82,7 @@ export default class Task extends Component {
 
     _onDelete = () => {
         const { deleteTask, id } = this.props;
+
         deleteTask(id);
     };
 
@@ -90,44 +93,44 @@ export default class Task extends Component {
         return (
             <Fragment>
                 <li className = { completed ? `${Styles.task} ${Styles.completed}`: `${Styles.task}` }>
-					<div>
-						<span onClick = { this._onComplete }>
-							<Checkbox
-								color1 = { stylesParams.completed.color1 }
-								color2 = { stylesParams.completed.color2 }
-								checked = { completed }
-							/>
-						</span>
-						{ messageEditStatus ?
-                                <span>
-                                    <input
-										autoFocus
-                                        defaultValue = { message }
-                                        name = 'editMessage'
-                                        type = 'text'
-                                        onChange = { this._handleMessageChange }
-                                        onKeyDown = { this._handleKeyPressEsc }
-                                    />
-                                </span>
-							: <span>{message}</span> }
-					</div>
                     <div>
-						<Star
-							checked = { favorite }
-							color1 = { stylesParams.favorite.color1 }
-							color2 = { stylesParams.favorite.color2 }
-							onClick = { this._onFavorite }
-						/>
-						<Edit
-							onClick = { this._onEdit }
-							color1 = { stylesParams.favorite.color1 }
-							color2 = { stylesParams.favorite.color2 }
-						/>
-						<Delete
-							color1 = { stylesParams.favorite.color1 }
-							color2 = { stylesParams.favorite.color2 }
-							onClick = { this._onDelete }
-						/>
+                        <span onClick = { this._onComplete }>
+                            <Checkbox
+                                checked = { completed }
+                                color1 = { stylesParams.completed.color1 }
+                                color2 = { stylesParams.completed.color2 }
+                            />
+                        </span>
+                        { messageEditStatus ?
+                            <span>
+                                <input
+                                    autoFocus
+                                    defaultValue = { message }
+                                    name = 'editMessage'
+                                    type = 'text'
+                                    onChange = { this._handleMessageChange }
+                                    onKeyDown = { this._handleKeyPressEsc }
+                                />
+                            </span>
+                            : <span>{message}</span> }
+                    </div>
+                    <div>
+                        <Star
+                            checked = { favorite }
+                            color1 = { stylesParams.favorite.color1 }
+                            color2 = { stylesParams.favorite.color2 }
+                            onClick = { this._onFavorite }
+                        />
+                        <Edit
+                            color1 = { stylesParams.favorite.color1 }
+                            color2 = { stylesParams.favorite.color2 }
+                            onClick = { this._onEdit }
+                        />
+                        <Delete
+                            color1 = { stylesParams.favorite.color1 }
+                            color2 = { stylesParams.favorite.color2 }
+                            onClick = { this._onDelete }
+                        />
                     </div>
                 </li>
             </Fragment>
