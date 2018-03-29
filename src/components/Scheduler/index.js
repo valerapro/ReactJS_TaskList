@@ -269,73 +269,68 @@ export default class Scheduler extends Component {
 
     render () {
         const { tasks: taskData, message, messageSearch, stylesParams } = this.state;
+        const filteredTasks = messageSearch ?
+            taskData.filter((task) => task.message.includes(messageSearch))
+                .map((task) => (<CSSTransition
+                    classNames = { {
+                        enter:       Styles.taskInStart,
+                        enterActive: Styles.taskInEnd,
+                        exit:        Styles.postRmStart,
+                        exitActive:  Styles.postRmEnd,
+                    } }
+                    key = { task.id }
+                    timeout = { 700 }>
+                    <Catcher key = { task.id }>
+                        <Task
+                            completeTask = { this._completeTask }
+                            deleteTask = { this._deleteTask }
+                            editTask = { this._editTask }
+                            favoriteTask = { this._favoriteTask }
+                            { ...task }
+                        />
+                    </Catcher>
+                </CSSTransition>)
+                ) :
+            taskData.map((task) => (
+                <CSSTransition
+                    classNames = { {
+                        enter:       Styles.taskInStart,
+                        enterActive: Styles.taskInEnd,
+                        exit:        Styles.taskRmStart,
+                        exitActive:  Styles.taskRmEnd,
+                    } }
+                    key = { task.id }
+                    timeout = { 700 }>
+                    <Catcher key = { task.id }>
+                        <Task
+                            completeTask = { this._completeTask }
+                            deleteTask = { this._deleteTask }
+                            editTask = { this._editTask }
+                            favoriteTask = { this._favoriteTask }
+                            { ...task }
+                        />
+                    </Catcher>
+                </CSSTransition>
+            ));
 
-		const filteredTasks = messageSearch ? taskData
-			.filter((task) => task.message.includes(messageSearch))
-			.map((task) =>
-				<CSSTransition
-					classNames = { {
-								enter:       Styles.taskInStart,
-								enterActive: Styles.taskInEnd,
-								exit:        Styles.postRmStart,
-					            exitActive:  Styles.postRmEnd,
-							} }
-					key = { task.id }
-					timeout = { 700 }
-	            >
-				<Catcher key = { task.id }>
-					<Task
-						completeTask = { this._completeTask }
-						deleteTask = { this._deleteTask }
-						editTask = { this._editTask }
-						favoriteTask = { this._favoriteTask }
-						{ ...task }
-					/>
-				</Catcher>
-				</CSSTransition>
-			) :
-			taskData.map((task) => (
-				<CSSTransition
-					classNames = { {
-						enter:       Styles.taskInStart,
-						enterActive: Styles.taskInEnd,
-						exit:        Styles.taskRmStart,
-						exitActive:  Styles.taskRmEnd,
-					} }
-					key = { task.id }
-					timeout = { 700 }
-				>
-				<Catcher key = { task.id }>
-					<Task
-						completeTask = { this._completeTask }
-						deleteTask = { this._deleteTask }
-						editTask = { this._editTask }
-						favoriteTask = { this._favoriteTask }
-						{ ...task }
-					/>
-				</Catcher>
-				</CSSTransition>
-			));
-
-		const completeAllTasks = taskData.filter((task) => task.completed === true).length == taskData.length ? true : false;
+        const completeAllTasks = taskData.filter((task) => task.completed === true).length === taskData.length;
 
         return (
             <section className = { Styles.scheduler }>
                 <main>
                     <header>
                         <h1>Планировщик задач</h1>
-						<input
-						 name = { 'messageSearch' }
-						 value = { messageSearch }
-						 onChange = { this._handleKeyPressSearch }
-						 placeholder = { 'Поиск' }
-						 />
+                        <input
+                            name = { 'messageSearch' }
+                            placeholder = { 'Поиск' }
+                            value = { messageSearch }
+                            onChange = { this._handleKeyPressSearch }
+                        />
                     </header>
                     <section>
                         <form
                             onKeyPress = { this._handleKeyPressValidate }
-                            onSubmit = { this.handleSubmit }
-                        >
+                            onSubmit = { this.handleSubmit }>
                             <input
                                 placeholder = { 'Описание моей новой задачи' }
                                 value = { message }
@@ -344,20 +339,20 @@ export default class Scheduler extends Component {
                             <button type = 'submit'>Добавить задачу</button>
                         </form>
                         <ul>
-							<TransitionGroup>
-								{ filteredTasks }
-							</TransitionGroup>
+                            <TransitionGroup>
+                                { filteredTasks }
+                            </TransitionGroup>
                         </ul>
                     </section>
                     <footer>
-							<span onClick = { this._completeAllTasks }>
+                        <span onClick = { this._completeAllTasks }>
                             <Checkbox
-								checked = { completeAllTasks }
-								color1 = { stylesParams.completed.color1 }
-								color2 = { stylesParams.completed.color2 }
-							/>
+                                checked = { completeAllTasks }
+                                color1 = { stylesParams.completed.color1 }
+                                color2 = { stylesParams.completed.color2 }
+                            />
                         </span>
-							<code>Все задачи выполнены</code>
+                        <code>Все задачи выполнены</code>
                     </footer>
                 </main>
             </section>
