@@ -177,18 +177,19 @@ export default class Scheduler extends Component {
         }
     };
 
-
  _completeAllTasks = () => {
-     // const { tasks: taskData } = this.state;
-     //
-     // taskData.map((task) => task.completed = true);
-     //
-     // this.setState({ tasks: taskData });
-     // this._updateTasks();
+     const { tasks: taskData } = this.state;
 
-     // this._updateTasks(id, 'completeAllTasks');
+     this._updateTasks(
+     	taskData.filter((task) => !task.completed)
+             .map((task) => {
+     		task.completed = true;
+
+                 return task;
+     	})
+	 );
+
  };
-
 
  render () {
      const { tasks: taskData, message, messageSearch } = this.state;
@@ -206,7 +207,7 @@ export default class Scheduler extends Component {
                  <Catcher key = { task.id }>
                      <Task
                          deleteTask = { this._deleteTask }
-						 updateTasks = { this._updateTasks }
+                         updateTasks = { this._updateTasks }
                          { ...task }
                      />
                  </Catcher>
@@ -225,7 +226,7 @@ export default class Scheduler extends Component {
                  <Catcher key = { task.id }>
                      <Task
                          deleteTask = { this._deleteTask }
-						 updateTasks = { this._updateTasks }
+                         updateTasks = { this._updateTasks }
                          { ...task }
                      />
                  </Catcher>
