@@ -26,11 +26,9 @@ export default class Catcher extends Component {
 
         if (hasError) {
             return (<section className = { Styles.catcher }>
-                <span>A mysterious 👽 &nbsp;error 📛 &nbsp;occured.</span>
+                <span>A mysterious error occured.</span>
                 <p>
-                    Our space 🛰 &nbsp;engineers strike team 👩🏼‍🚀 👨🏼‍🚀
-                    &nbsp;is already working 🚀 &nbsp;in order to fix that
-                    for you!
+                    Our space engineers strike team is already working in order to fix that for you!
                 </p>
             </section>);
 
