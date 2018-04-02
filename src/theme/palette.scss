@@ -12,3 +12,10 @@ $paletteColor9: #656565;
 // RGBA
 $rgbaColor1: rgba(0, 0, 0, .1);
 $rgbaColor2: rgba(0, 0, 0, .2);
+
+
+:export {
+  paletteColor3: $paletteColor3;
+  paletteColor1: $paletteColor1;
+  paletteColor4: $paletteColor4;
+}

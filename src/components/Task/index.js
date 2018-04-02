@@ -4,6 +4,7 @@ import { string, bool, func } from 'prop-types';
 
 // Components
 import Styles from './styles.scss';
+import Palette from '../../theme/palette.scss';
 import Checkbox from '../../theme/assets/Checkbox';
 import Delete from '../../theme/assets/Delete';
 import Edit from '../../theme/assets/Edit';
@@ -26,16 +27,6 @@ export default class Task extends Component {
 
     state = {
         messageEditStatus: false,
-        stylesParams:      {
-            completed: {
-                color1: '#3B8EF3',
-                color2: '#FFF',
-            },
-            favorite: {
-                color1: '#363636',
-                color2: '#3B8EF3',
-            },
-        },
     };
 
     _onComplete = () => {
@@ -97,8 +88,8 @@ export default class Task extends Component {
                         <span onClick = { this._onComplete }>
                             <Checkbox
                                 checked = { completed }
-                                color1 = { stylesParams.completed.color1 }
-                                color2 = { stylesParams.completed.color2 }
+								color1 = { Palette.paletteColor3 }
+								color2 = { Palette.paletteColor4 }
                             />
                         </span>
                         { messageEditStatus ?
@@ -117,18 +108,18 @@ export default class Task extends Component {
                     <div>
                         <Star
                             checked = { favorite }
-                            color1 = { stylesParams.favorite.color1 }
-                            color2 = { stylesParams.favorite.color2 }
+                            color1 = { Palette.paletteColor3 }
+                            color2 = { Palette.paletteColor1 }
                             onClick = { this._onFavorite }
                         />
                         <Edit
-                            color1 = { stylesParams.favorite.color1 }
-                            color2 = { stylesParams.favorite.color2 }
+							color1 = { Palette.paletteColor3 }
+							color2 = { Palette.paletteColor1 }
                             onClick = { this._onEdit }
                         />
                         <Delete
-                            color1 = { stylesParams.favorite.color1 }
-                            color2 = { stylesParams.favorite.color2 }
+							color1 = { Palette.paletteColor3 }
+							color2 = { Palette.paletteColor1 }
                             onClick = { this._onDelete }
                         />
                     </div>
