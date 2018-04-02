@@ -146,7 +146,7 @@ export default class Scheduler extends Component {
  };
 
  _updateTasks = async (editedTasks) => {
-	 let { tasks } = this.state;
+	 const { tasks } = this.state;
 	 let filteredTask = [];
      const { api, token } = this.context;
 
