@@ -13,32 +13,38 @@ import Star from '../../theme/assets/Star';
 
 export default class Task extends Component {
     static propTypes = {
+		updateTasks:  func.isRequired,
         completed:    bool.isRequired,
-        completeTask: func.isRequired,
-        created:      string.isRequired,
         deleteTask:   func.isRequired,
-        editTask:     func.isRequired,
         favorite:     bool.isRequired,
-        favoriteTask: func.isRequired,
         id:           string.isRequired,
         message:      string.isRequired,
     };
-
 
     state = {
         messageEditStatus: false,
     };
 
     _onComplete = () => {
-        const { completeTask, id } = this.props;
+        const { updateTasks, id, message, completed, favorite } = this.props;
 
-        completeTask(id);
+		updateTasks([{
+			id,
+			message,
+			completed: !completed,
+			favorite,
+		}]);
     };
 
     _onFavorite = () => {
-        const { favoriteTask, id } = this.props;
+		const { updateTasks, id, message, completed, favorite } = this.props;
 
-        favoriteTask(id);
+		updateTasks([{
+			id,
+			message,
+			completed,
+			favorite: !favorite,
+		}]);
     };
 
     _onEdit = () => {
@@ -46,7 +52,8 @@ export default class Task extends Component {
         const { messageEditStatus, message } = this.state;
 
         if (messageEditStatus) {
-            editTask(id, message);
+            // editTask(id, message);
+			// updateTask(id, 'edit', message);
         }
 
         this.setState({
@@ -79,7 +86,7 @@ export default class Task extends Component {
 
     render () {
         const { message, favorite, completed } = this.props;
-        const { stylesParams, messageEditStatus } = this.state;
+        const { messageEditStatus } = this.state;
 
         return (
             <Fragment>

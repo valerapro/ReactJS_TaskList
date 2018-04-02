@@ -34,10 +34,10 @@ export default class Scheduler extends Component {
 
     _handleSubmit (event) {
         event.preventDefault();
-        const { message } = this.state;
+        const message = this.state.message.trim();
         const { messageLength } = this.context;
 
-        if (message.trim() && message.trim().length < messageLength) {
+        if (message && message.length < messageLength) {
             this._createTask(message);
             this.setState({
                 message:       '',
@@ -64,44 +64,40 @@ export default class Scheduler extends Component {
         });
     };
 
-    /**
-	 *
-	 * @param message
-	 * @returns {Promise.<void>}
-	 * @private
-	 */
-    _createTask = async (message) => {
-        const { api, token } = this.context;
-        const { tasks } = this.state;
+ _sortTasks = (taskData) => {
+	 const favoriteTask = taskData.filter((task) => task.favorite && !task.completed);
+	 const notFavoriteTask = taskData.filter((task) => !task.favorite && !task.completed);
+	 const complitedTask = taskData.filter((task) => task.completed);
 
-        try {
-            const response = await fetch(api, {
-                method:  'POST',
-                headers: {
-                    'Content-Type':  'application/json',
-                    'Authorization': token,
-                },
-                body: JSON.stringify({ message }),
-            });
+	 return [...favoriteTask, ...notFavoriteTask, ...complitedTask];
+ };
 
-            if (response.status !== 200) {
-                throw new Error('Create error post');
-            }
-            const { data } = await response.json();
+ _createTask = async (message) => {
+     const { api, token } = this.context;
+     const { tasks } = this.state;
 
-            this.setState({ tasks: [data, ...tasks]});
+     try {
+         const response = await fetch(api, {
+             method:  'POST',
+             headers: {
+                 'Content-Type':  'application/json',
+                 'Authorization': token,
+             },
+             body: JSON.stringify({ message }),
+         });
 
-        } catch ({ error }) {
-            console.log('_createTask ', error);
-        }
+         if (response.status !== 200) {
+             throw new Error('Create error post');
+         }
+         const { data } = await response.json();
 
-    };
+         this.setState({ tasks: this._sortTasks([data, ...tasks]) });
 
-    /**
-	 *
-	 * @returns {Promise.<void>}
-	 * @private
-	 */
+     } catch ({ error }) {
+         console.log('_createTask ', error);
+     }
+ };
+
  _fetchTask = async () => {
      const { api, token } = this.context;
 
@@ -120,106 +116,44 @@ export default class Scheduler extends Component {
 
          const { data } = await response.json();
 
-         this.setState({ tasks: [...data]});
-
-         this._sortTasks();
+         this.setState({ tasks: this._sortTasks([...data]) });
 
      } catch ({ message }) {
          console.log('_fetchTask ', message);
      }
  };
 
-    /**
-	 *
-	 * @private
-	 */
- _sortTasks = () => {
- 	console.log('_sortTasks started !!!');
 
-     const { tasks: taskData } = this.state;
-     const favoriteTask = taskData.filter((task) => task.favorite === true && task.completed === false);
-     const notFavoriteTask = taskData.filter((task) => task.favorite === false && task.completed === false);
-     const complitedTask = taskData.filter((task) => task.completed === true);
+ _deleteTask = async (id) => {
+     const { api, token } = this.context;
 
-     this.setState({ tasks: [...favoriteTask, ...notFavoriteTask, ...complitedTask]});
+     try {
+         const response = await fetch(`${api}/${id}`, {
+             method:  'DELETE',
+             headers: {
+                 'Authorization': token,
+             },
+         });
+
+         if (response.status !== 204) {
+             throw new Error('Delete post failed');
+         }
+
+         this.setState(({ tasks }) => ({
+             tasks: tasks.filter((task) => task.id !== id),
+         }));
+
+
+     } catch ({ message }) {
+         console.error('_deleteTask ', message);
+     }
  };
 
-    /**
-	 *
-	 * @param id
-	 * @private
-	 */
-    _completeTask = (id) => {
-        this._updateTask(id, 'completed');
-    };
-
-    _completeAllTasks = () => {
-        // const { tasks: taskData } = this.state;
-		//
-        // taskData.map((task) => task.completed = true);
-		//
-        // this.setState({ tasks: taskData });
-        // this._updateTask();
-
-		// this._updateTask(id, 'completeAllTasks');
-    };
-
-    /**
-	 *
-	 * @param id
-	 * @private
-	 */
-    _favoriteTask = (id) => {
-        this._updateTask(id, 'favorite');
-    };
-
-    /**
-	 *
-	 * @param id
-	 * @param message
-	 * @private
-	 */
-    _editTask = (id, message) => {
-        this._updateTask(id, 'message', message);
-    };
-
-    _updateTask = async (id, param, value) => {
+    _updateTasks = async (tasks) => {
         const { api, token } = this.context;
-        const { tasks: taskData } = this.state;
-        let taskEdited = taskData.filter((task) => task.id === id);
 
-        switch (param) {
-            case 'completed':
-                taskEdited = taskEdited.map((task) => ({
-                    id:        task.id,
-                    completed: !task.completed,
-                    favorite:  task.favorite,
-                    message:   task.message,
-                }));
-                break;
-            case 'favorite':
-                taskEdited = taskEdited.map((task) => ({
-                    id:        task.id,
-                    completed: task.completed,
-                    favorite:  !task.favorite,
-                    message:   task.message,
-                }));
-                break;
-            case 'message':
-                taskEdited = taskEdited.map((task) => ({
-                    id:        task.id,
-                    completed: task.completed,
-                    favorite:  task.favorite,
-                    message:   value,
-                }));
-                break;
-            default:
-                break;
-        }
+        console.log('_updateTasks ', tasks); //dev
 
-
-        // console.log('param', param); //dev
-        // console.log('param to set', ...taskEdited); //dev
         try {
             const response = await fetch(api, {
                 method:  'PUT',
@@ -227,7 +161,7 @@ export default class Scheduler extends Component {
                     'Content-Type':  'application/json',
                     'Authorization': token,
                 },
-                body: JSON.stringify(taskEdited),
+                body: JSON.stringify(tasks),
             });
 
             if (response.status !== 200) {
@@ -235,136 +169,112 @@ export default class Scheduler extends Component {
             }
             const { data } = await response.json();
 
-            // console.log('Data is geted ', data[0]);
-            // console.log('ffffffffffffff', taskData.map((task) => data[0].id === task.id ? data[0] : task)); //dev
-
-
             this.setState(({ tasks }) => ({
-                tasks: tasks.filter((task) => data[0].id === task.id ? data[0] : task),
+                tasks: this._sortTasks(tasks.filter((task) => data[0].id === task.id ? data[0] : task)),
             }));
-            // this._sortTasks;
-
-
         } catch ({ error }) {
-            console.log('_updateTask ', error);
-        }
-    };
-
-    _deleteTask = async (id) => {
-        const { api, token } = this.context;
-
-        try {
-            const response = await fetch(`${api}/${id}`, {
-                method:  'DELETE',
-                headers: {
-                    'Authorization': token,
-                },
-            });
-
-            if (response.status !== 204) {
-                throw new Error('Delete post failed');
-            }
-
-            this.setState(({ tasks }) => ({
-                tasks: tasks.filter((task) => task.id !== id),
-            }));
-
-
-        } catch ({ message }) {
-            console.error('_deleteTask ', message);
+            console.log('_updateTasks ', error);
         }
     };
 
 
-    render () {
-        const { tasks: taskData, message, messageSearch } = this.state;
-        const filteredTasks = messageSearch ?
-            taskData.filter((task) => task.message.includes(messageSearch))
-                .map((task) => (<CSSTransition
-                    classNames = { {
-                        enter:       Styles.taskInStart,
-                        enterActive: Styles.taskInEnd,
-                        exit:        Styles.postRmStart,
-                        exitActive:  Styles.postRmEnd,
-                    } }
-                    key = { task.id }
-                    timeout = { 700 }>
-                    <Catcher key = { task.id }>
-                        <Task
-                            completeTask = { this._completeTask }
-                            deleteTask = { this._deleteTask }
-                            editTask = { this._editTask }
-                            favoriteTask = { this._favoriteTask }
-                            { ...task }
-                        />
-                    </Catcher>
-                </CSSTransition>)
-                ) :
-            taskData.map((task) => (
-                <CSSTransition
-                    classNames = { {
-                        enter:       Styles.taskInStart,
-                        enterActive: Styles.taskInEnd,
-                        exit:        Styles.taskRmStart,
-                        exitActive:  Styles.taskRmEnd,
-                    } }
-                    key = { task.id }
-                    timeout = { 700 }>
-                    <Catcher key = { task.id }>
-                        <Task
-                            completeTask = { this._completeTask }
-                            deleteTask = { this._deleteTask }
-                            editTask = { this._editTask }
-                            favoriteTask = { this._favoriteTask }
-                            { ...task }
-                        />
-                    </Catcher>
-                </CSSTransition>
-            ));
+ _completeAllTasks = () => {
+     // const { tasks: taskData } = this.state;
+     //
+     // taskData.map((task) => task.completed = true);
+     //
+     // this.setState({ tasks: taskData });
+     // this._updateTasks();
 
-        const completeAllTasks = taskData.filter((task) => task.completed === true).length === taskData.length;
+     // this._updateTasks(id, 'completeAllTasks');
+ };
 
-        return (
-            <section className = { Styles.scheduler }>
-                <main>
-                    <header>
-                        <h1>Планировщик задач</h1>
-                        <input
-                            name = { 'messageSearch' }
-                            placeholder = { 'Поиск' }
-                            value = { messageSearch }
-                            onChange = { this._handleKeyPressSearch }
-                        />
-                    </header>
-                    <section>
-                        <form
-                            onKeyPress = { this._handleKeyPressValidate }
-                            onSubmit = { this.handleSubmit }>
-                            <input
-                                placeholder = { 'Описание моей новой задачи' }
-                                value = { message }
-                                onChange = { this._handleMessageChange }
-                            />
-                            <button type = 'submit'>Добавить задачу</button>
-                        </form>
-                        <ul>
-                            <TransitionGroup>
-                                { filteredTasks }
-                            </TransitionGroup>
-                        </ul>
-                    </section>
-                    <footer>
-                        <span onClick = { this._completeAllTasks }>
-                            <Checkbox
-                                checked = { completeAllTasks }
-                                color1 = { Palette.paletteColor3 }
-                                color2 = { Palette.paletteColor4 }
-                            />
-                        </span>
-                        <code>Все задачи выполнены</code>
-                    </footer>
-                </main>
-            </section>
-        );
-    }
+
+ render () {
+     const { tasks: taskData, message, messageSearch } = this.state;
+     const filteredTasks = messageSearch ?
+         taskData.filter((task) => task.message.includes(messageSearch))
+             .map((task) => (<CSSTransition
+                 classNames = { {
+                     enter:       Styles.taskInStart,
+                     enterActive: Styles.taskInEnd,
+                     exit:        Styles.postRmStart,
+                     exitActive:  Styles.postRmEnd,
+                 } }
+                 key = { task.id }
+                 timeout = { 700 }>
+                 <Catcher key = { task.id }>
+                     <Task
+                         deleteTask = { this._deleteTask }
+						 updateTasks = { this._updateTasks }
+                         { ...task }
+                     />
+                 </Catcher>
+             </CSSTransition>)
+             ) :
+         taskData.map((task) => (
+             <CSSTransition
+                 classNames = { {
+                     enter:       Styles.taskInStart,
+                     enterActive: Styles.taskInEnd,
+                     exit:        Styles.taskRmStart,
+                     exitActive:  Styles.taskRmEnd,
+                 } }
+                 key = { task.id }
+                 timeout = { 700 }>
+                 <Catcher key = { task.id }>
+                     <Task
+                         deleteTask = { this._deleteTask }
+						 updateTasks = { this._updateTasks }
+                         { ...task }
+                     />
+                 </Catcher>
+             </CSSTransition>
+         ));
+
+     const completeAllTasks = taskData.filter((task) => task.completed === true).length === taskData.length;
+
+     return (
+         <section className = { Styles.scheduler }>
+             <main>
+                 <header>
+                     <h1>Планировщик задач</h1>
+                     <input
+                         name = { 'messageSearch' }
+                         placeholder = { 'Поиск' }
+                         value = { messageSearch }
+                         onChange = { this._handleKeyPressSearch }
+                     />
+                 </header>
+                 <section>
+                     <form
+                         onKeyPress = { this._handleKeyPressValidate }
+                         onSubmit = { this.handleSubmit }>
+                         <input
+                             placeholder = { 'Описание моей новой задачи' }
+                             value = { message }
+                             onChange = { this._handleMessageChange }
+                         />
+                         <button type = 'submit'>Добавить задачу</button>
+                     </form>
+                     <ul>
+                         <TransitionGroup>
+                             { filteredTasks }
+                         </TransitionGroup>
+                     </ul>
+                 </section>
+                 <footer>
+                     <span onClick = { this._completeAllTasks }>
+                         <Checkbox
+                             checked = { completeAllTasks }
+                             color1 = { Palette.paletteColor3 }
+                             color2 = { Palette.paletteColor4 }
+                         />
+                     </span>
+                     <code>Все задачи выполнены</code>
+                 </footer>
+             </main>
+         </section>
+     );
+ }
 }
