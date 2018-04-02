@@ -11,67 +11,65 @@ import Catcher from '../Catcher';
 import Checkbox from '../../theme/assets/Checkbox';
 
 export default class Scheduler extends Component {
-    static contextTypes = {
-        api:           string.isRequired,
-        token:         string.isRequired,
-        messageLength: number.isRequired,
-    };
-
-    constructor () {
-        super();
-        this.handleSubmit = ::this._handleSubmit;
-    }
-
-    state = {
-        tasks:         [],
-        message:       '',
-        messageSearch: '',
-    };
-
-    componentDidMount () {
-        this._fetchTask();
-    }
-
-    _handleSubmit (event) {
-        event.preventDefault();
-        const message = this.state.message.trim();
-        const { messageLength } = this.context;
-
-        if (message && message.length < messageLength) {
-            this._createTask(message);
-            this.setState({
-                message:       '',
-                messageSearch: '',
-            });
-        }
-    }
-
-    _handleMessageChange = ({ target: { value }}) => {
-        this.setState({
-            message: value,
-        });
-    };
-
-    _handleKeyPressValidate = (event) => {
-        if (event.key === 'Enter') {
-            this._handleSubmit;
-        }
-    };
-
-    _handleKeyPressSearch = ({ target: { value }}) => {
-        this.setState({
-            messageSearch: value.trim(),
-        });
-    };
-
- _sortTasks = (taskData) => {
-	 const favoriteTask = taskData.filter((task) => task.favorite && !task.completed);
-	 const notFavoriteTask = taskData.filter((task) => !task.favorite && !task.completed);
-	 const complitedTask = taskData.filter((task) => task.completed);
-
-	 return [...favoriteTask, ...notFavoriteTask, ...complitedTask];
+ static contextTypes = {
+     api:           string.isRequired,
+     token:         string.isRequired,
+     messageLength: number.isRequired,
  };
 
+ constructor () {
+     super();
+     this.handleSubmit = ::this._handleSubmit;
+ }
+
+ state = {
+     tasks:         [],
+     message:       '',
+     messageSearch: '',
+ };
+
+ componentDidMount () {
+     this._fetchTask();
+ }
+
+ _handleSubmit (event) {
+     event.preventDefault();
+     const message = this.state.message.trim();
+     const { messageLength } = this.context;
+
+     if (message && message.length < messageLength) {
+         this._createTask(message);
+         this.setState({
+             message:       '',
+             messageSearch: '',
+         });
+     }
+ }
+
+ _handleMessageChange = ({ target: { value }}) => {
+     this.setState({
+         message: value,
+     });
+ };
+
+ _handleKeyPressValidate = (event) => {
+     if (event.key === 'Enter') {
+         this._handleSubmit;
+     }
+ };
+
+ _handleKeyPressSearch = ({ target: { value }}) => {
+     this.setState({
+         messageSearch: value.trim(),
+     });
+ };
+ _sortTasks = (taskData) => {
+     const favoriteTask = taskData.filter((task) => task.favorite && !task.completed);
+     const notFavoriteTask = taskData.filter((task) => !task.favorite && !task.completed);
+     const complitedTask = taskData.filter((task) => task.completed);
+
+     return [...favoriteTask, ...notFavoriteTask, ...complitedTask];
+ };
  _createTask = async (message) => {
      const { api, token } = this.context;
      const { tasks } = this.state;
@@ -97,7 +95,6 @@ export default class Scheduler extends Component {
          console.log('_createTask ', error);
      }
  };
-
  _fetchTask = async () => {
      const { api, token } = this.context;
 
@@ -122,7 +119,6 @@ export default class Scheduler extends Component {
          console.log('_fetchTask ', message);
      }
  };
-
 
  _deleteTask = async (id) => {
      const { api, token } = this.context;
@@ -149,46 +145,49 @@ export default class Scheduler extends Component {
      }
  };
 
-    _updateTasks = async (tasks) => {
-        const { api, token } = this.context;
+ _updateTasks = async (editedTasks) => {
+	 let { tasks } = this.state;
+	 let filteredTask = [];
+     const { api, token } = this.context;
 
-        console.log('_updateTasks ', tasks); //dev
+     try {
+         const response = await fetch(api, {
+             method:  'PUT',
+             headers: {
+                 'Content-Type':  'application/json',
+                 'Authorization': token,
+             },
+             body: JSON.stringify(editedTasks),
+         });
 
-        try {
-            const response = await fetch(api, {
-                method:  'PUT',
-                headers: {
-                    'Content-Type':  'application/json',
-                    'Authorization': token,
-                },
-                body: JSON.stringify(tasks),
-            });
+         if (response.status !== 200) {
+             throw new Error('Create error post');
+         }
+         const { data } = await response.json();
 
-            if (response.status !== 200) {
-                throw new Error('Create error post');
-            }
-            const { data } = await response.json();
+		 data.forEach((dataTicket) => {
+			 filteredTask = tasks.filter((task) => task.id !== dataTicket.id);
+		 });
+		 this.setState({
+			 tasks: this._sortTasks([...data, ...filteredTask]),
+		 });
 
-            this.setState(({ tasks }) => ({
-                tasks: this._sortTasks(tasks.filter((task) => data[0].id === task.id ? data[0] : task)),
-            }));
-        } catch ({ error }) {
-            console.log('_updateTasks ', error);
-        }
-    };
+     } catch ({ error }) {
+         console.log('_updateTasks ', error);
+     }
+ };
 
  _completeAllTasks = () => {
      const { tasks: taskData } = this.state;
 
      this._updateTasks(
-     	taskData.filter((task) => !task.completed)
+         taskData.filter((task) => !task.completed)
              .map((task) => {
-     		task.completed = true;
+                 task.completed = true;
 
                  return task;
-     	})
-	 );
-
+             })
+     );
  };
 
  render () {

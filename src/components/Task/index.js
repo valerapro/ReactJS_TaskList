@@ -48,12 +48,16 @@ export default class Task extends Component {
     };
 
     _onEdit = () => {
-        const { editTask, id } = this.props;
+        const { updateTasks, id, completed, favorite } = this.props;
         const { messageEditStatus, message } = this.state;
 
         if (messageEditStatus) {
-            // editTask(id, message);
-			// updateTask(id, 'edit', message);
+			updateTasks([{
+				id,
+				message: message.trim(),
+				completed,
+				favorite,
+			}]);
         }
 
         this.setState({
@@ -87,6 +91,18 @@ export default class Task extends Component {
     render () {
         const { message, favorite, completed } = this.props;
         const { messageEditStatus } = this.state;
+		const messageView = messageEditStatus ?
+			<span>
+                                <input
+									autoFocus
+									defaultValue = { message }
+									name = 'editMessage'
+									type = 'text'
+									onChange = { this._handleMessageChange }
+									onKeyDown = { this._handleKeyPressEsc }
+								/>
+                            </span>
+			: <span>{message}</span>;
 
         return (
             <Fragment>
@@ -99,18 +115,7 @@ export default class Task extends Component {
 								color2 = { Palette.paletteColor4 }
                             />
                         </span>
-                        { messageEditStatus ?
-                            <span>
-                                <input
-                                    autoFocus
-                                    defaultValue = { message }
-                                    name = 'editMessage'
-                                    type = 'text'
-                                    onChange = { this._handleMessageChange }
-                                    onKeyDown = { this._handleKeyPressEsc }
-                                />
-                            </span>
-                            : <span>{message}</span> }
+                        { messageView }
                     </div>
                     <div>
                         <Star
